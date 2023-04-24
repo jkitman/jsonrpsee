@@ -262,7 +262,7 @@ pub(crate) async fn call_with_timeout<T>(
 	timeout: std::time::Duration,
 	rx: oneshot::Receiver<Result<T, Error>>,
 ) -> Result<Result<T, Error>, oneshot::error::RecvError> {
-	match future::select(rx, Delay::new(timeout)).await {
+	match future::select(tokio::task::unconstrained(rx), Delay::new(timeout)).await {
 		Either::Left((res, _)) => res,
 		Either::Right((_, _)) => Ok(Err(Error::RequestTimeout)),
 	}

@@ -334,7 +334,8 @@ impl ClientT for Client {
 		}
 
 		warn!("CALLING {:?}", id);
-		let json_value = match call_with_timeout(self.request_timeout, send_back_rx).await {
+		let json_value = match call_with_timeout(self.request_timeout,
+												 send_back_rx).await {
 			Ok(Ok(v)) => v,
 			Ok(Err(err)) => return Err(err),
 			Err(_) => return Err(self.read_error_from_backend().await),
