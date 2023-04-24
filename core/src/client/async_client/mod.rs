@@ -33,7 +33,7 @@ use jsonrpsee_types::response::{ResponsePayload, SubscriptionError};
 use jsonrpsee_types::{Notification, NotificationSer, RequestSer, Response, SubscriptionResponse};
 use serde::de::DeserializeOwned;
 use tokio::sync::{mpsc, oneshot};
-use tracing::instrument;
+use tracing::{instrument, warn};
 
 use super::{generate_batch_id_range, FrontToBack, IdKind, RequestIdManager};
 
@@ -373,13 +373,14 @@ impl ClientT for Client {
 		if self
 			.to_back
 			.clone()
-			.send(FrontToBack::Batch(BatchMessage { raw, ids: id_range, send_back: send_back_tx }))
+			.send(FrontToBack::Batch(BatchMessage { raw, ids: id_range.clone(), send_back: send_back_tx }))
 			.await
 			.is_err()
 		{
 			return Err(self.read_error_from_backend().await);
 		}
 
+		warn!("CALLING {:?}", id_range);
 		let res = call_with_timeout(self.request_timeout, send_back_rx).await;
 		let json_values = match res {
 			Ok(Ok(v)) => v,

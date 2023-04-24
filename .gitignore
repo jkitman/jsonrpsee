@@ -3,7 +3,8 @@
 **/*.rs.bk
 Cargo.lock
 .DS_Store
-
+.idea
+*iml
 #Added by cargo
 #
 #already existing elements are commented out

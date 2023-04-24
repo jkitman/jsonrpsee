@@ -40,6 +40,7 @@ use jsonrpsee_types::{
 };
 use serde_json::Value as JsonValue;
 use std::ops::Range;
+use tracing::warn;
 
 #[derive(Debug, Clone)]
 pub(crate) struct InnerBatchResponse {
@@ -179,13 +180,14 @@ pub(crate) fn process_single_response(
 
 	match manager.request_status(&response_id) {
 		RequestStatus::PendingMethodCall => {
-			let send_back_oneshot = match manager.complete_pending_call(response_id) {
+			let send_back_oneshot = match manager.complete_pending_call(response_id.clone()) {
 				Some(Some(send)) => send,
 				Some(None) => return Ok(None),
 				None => return Err(Error::InvalidRequestId),
 			};
 
 			let _ = send_back_oneshot.send(result);
+			warn!("CALLBACK {:?}", response_id);
 			Ok(None)
 		}
 		RequestStatus::PendingSubscription => {
