@@ -316,8 +316,6 @@ impl ClientT for Client {
 	{
 		let (send_back_tx, send_back_rx) = oneshot::channel();
 		let guard = self.id_manager.next_request_id()?;
-		let guard = self.id_manager.next_request_id()?;
-		let guard = self.id_manager.next_request_id()?;
 		let id = guard.inner();
 
 		let params = params.to_rpc_params()?;
@@ -341,6 +339,7 @@ impl ClientT for Client {
 			Ok(Err(err)) => return Err(err),
 			Err(_) => return Err(self.read_error_from_backend().await),
 		};
+		warn!("DONE CALLING {:?}", id);
 
 		rx_log_from_json(&Response::new(ResponsePayload::result_borrowed(&json_value), id), self.max_log_length);
 
