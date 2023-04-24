@@ -316,6 +316,8 @@ impl ClientT for Client {
 	{
 		let (send_back_tx, send_back_rx) = oneshot::channel();
 		let guard = self.id_manager.next_request_id()?;
+		let guard = self.id_manager.next_request_id()?;
+		let guard = self.id_manager.next_request_id()?;
 		let id = guard.inner();
 
 		let params = params.to_rpc_params()?;
@@ -333,6 +335,7 @@ impl ClientT for Client {
 			return Err(self.read_error_from_backend().await);
 		}
 
+		warn!("CALLING {:?}", id);
 		let json_value = match call_with_timeout(self.request_timeout, send_back_rx).await {
 			Ok(Ok(v)) => v,
 			Ok(Err(err)) => return Err(err),
@@ -380,7 +383,6 @@ impl ClientT for Client {
 			return Err(self.read_error_from_backend().await);
 		}
 
-		warn!("CALLING {:?}", id_range);
 		let res = call_with_timeout(self.request_timeout, send_back_rx).await;
 		let json_values = match res {
 			Ok(Ok(v)) => v,
